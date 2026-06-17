@@ -27,6 +27,8 @@ type ToolButtonBaseProps = {
   id?: string;
   size?: ToolButtonSize;
   keyBindingLabel?: string | null;
+  badge?: React.ReactNode;
+  badgeTestId?: string;
   showAriaLabel?: boolean;
   hidden?: boolean;
   visible?: boolean;
@@ -197,6 +199,15 @@ export const ToolButton = React.forwardRef(
         />
         <div className="ToolIcon__icon">
           {props.icon}
+          {props.badge != null && (
+            <span
+              className="ToolIcon__badge"
+              aria-hidden="true"
+              data-testid={props.badgeTestId}
+            >
+              {props.badge}
+            </span>
+          )}
           {props.keyBindingLabel && (
             <span className="ToolIcon__keybinding">
               {props.keyBindingLabel}
