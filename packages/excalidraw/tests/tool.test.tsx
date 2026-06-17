@@ -114,14 +114,6 @@ describe("star tool", () => {
     expect(h.state.activeTool.type).toBe("star");
   });
 
-  it("renders a NEW badge on the star toolbar button", () => {
-    const badge = GlobalTestState.renderResult.getByTestId(
-      "toolbar-star-new-badge",
-    );
-    expect(badge).toHaveTextContent("NEW");
-    expect(badge).toHaveAttribute("aria-hidden", "true");
-  });
-
   it("can be activated via setActiveTool API", async () => {
     const excalidrawAPIPromise = resolvablePromise<ExcalidrawImperativeAPI>();
     await render(

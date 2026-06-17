@@ -332,8 +332,7 @@
     "hand": "Hand (panning tool)",
     "extraTools": "More tools",
     "mermaidToExcalidraw": "Mermaid to Excalidraw",
-    "convertElementType": "Toggle shape type",
-    "newBadge": "NEW"
+    "convertElementType": "Toggle shape type"
   },
   "element": {
     "rectangle": "Rectangle",
