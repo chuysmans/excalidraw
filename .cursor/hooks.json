@@ -2,7 +2,11 @@
   "version": 1,
   "hooks": {
     "beforeShellExecution": [
-      { "command": ".cursor/hooks/block-dangerous.sh", "matcher": "Shell" },
+      {
+        "command": ".cursor/hooks/block-dangerous.sh",
+        "matcher": "git push|git reset|git clean|git checkout \\.|rm -rf|rm -fr|curl |chmod -R 777",
+        "failClosed": true
+      },
       {
         "command": ".cursor/hooks/block-upstream-pr.sh",
         "matcher": "gh |git push",
