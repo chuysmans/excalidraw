@@ -1148,6 +1148,7 @@ export const ShapesSwitcher = ({
               name="editor-current-shape"
               title={`${capitalizeString(label)} — ${shortcut}`}
               keyBindingLabel={keybindingLabel}
+              badge={value === "star" ? t("toolBar.newBadge") : undefined}
               aria-label={capitalizeString(label)}
               aria-keyshortcuts={shortcut}
               data-testid={`toolbar-${value}`}

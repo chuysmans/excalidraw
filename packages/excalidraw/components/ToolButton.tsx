@@ -27,6 +27,7 @@ type ToolButtonBaseProps = {
   id?: string;
   size?: ToolButtonSize;
   keyBindingLabel?: string | null;
+  badge?: React.ReactNode;
   showAriaLabel?: boolean;
   hidden?: boolean;
   visible?: boolean;
@@ -162,6 +163,15 @@ export const ToolButton = React.forwardRef(
               {props["aria-label"]} {isLoading && <Spinner />}
             </div>
           )}
+          {props.badge && (
+            <span
+              className="ToolIcon__badge"
+              aria-hidden="true"
+              data-testid="tool-new-badge"
+            >
+              {props.badge}
+            </span>
+          )}
           {props.children}
         </button>
       );
@@ -203,6 +213,15 @@ export const ToolButton = React.forwardRef(
             </span>
           )}
         </div>
+        {props.badge && (
+          <span
+            className="ToolIcon__badge"
+            aria-hidden="true"
+            data-testid="tool-new-badge"
+          >
+            {props.badge}
+          </span>
+        )}
       </label>
     );
   },
