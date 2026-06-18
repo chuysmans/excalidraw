@@ -18,6 +18,7 @@ export type ToolButtonSize = "small" | "medium";
 
 type ToolButtonBaseProps = {
   icon?: React.ReactNode;
+  badge?: React.ReactNode;
   "aria-label": string;
   "aria-keyshortcuts"?: string;
   "data-testid"?: string;
@@ -197,6 +198,11 @@ export const ToolButton = React.forwardRef(
         />
         <div className="ToolIcon__icon">
           {props.icon}
+          {props.badge && (
+            <span className="ToolIcon__badge" aria-hidden="true">
+              {props.badge}
+            </span>
+          )}
           {props.keyBindingLabel && (
             <span className="ToolIcon__keybinding">
               {props.keyBindingLabel}

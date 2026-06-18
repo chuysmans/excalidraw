@@ -1144,6 +1144,7 @@ export const ShapesSwitcher = ({
               key={value}
               type="radio"
               icon={icon}
+              badge={value === "star" ? t("toolBar.newBadge") : undefined}
               checked={activeTool.type === value}
               name="editor-current-shape"
               title={`${capitalizeString(label)} — ${shortcut}`}
