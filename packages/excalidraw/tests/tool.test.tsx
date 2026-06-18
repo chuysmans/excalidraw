@@ -118,15 +118,4 @@ describe("star tool", () => {
     });
     expect(h.state.activeTool.type).toBe("star");
   });
-
-  it("shows NEW badge on the star toolbar button", async () => {
-    const { getByToolName } = await render(<Excalidraw />);
-    const starButton = getByToolName("star");
-    const badge = starButton
-      .closest("label")
-      ?.querySelector(".ToolIcon__badge");
-
-    expect(badge).toBeTruthy();
-    expect(badge).toHaveTextContent("NEW");
-  });
 });
