@@ -35,6 +35,7 @@ type ToolButtonBaseProps = {
   className?: string;
   style?: CSSProperties;
   isLoading?: boolean;
+  badge?: React.ReactNode;
 };
 
 type ToolButtonProps =
@@ -157,6 +158,11 @@ export const ToolButton = React.forwardRef(
               {props.isLoading && <Spinner />}
             </div>
           )}
+          {props.badge && (
+            <span className="ToolIcon__badge" aria-hidden="true">
+              {props.badge}
+            </span>
+          )}
           {props.showAriaLabel && (
             <div className="ToolIcon__label">
               {props["aria-label"]} {isLoading && <Spinner />}
@@ -203,6 +209,11 @@ export const ToolButton = React.forwardRef(
             </span>
           )}
         </div>
+        {props.badge && (
+          <span className="ToolIcon__badge" aria-hidden="true">
+            {props.badge}
+          </span>
+        )}
       </label>
     );
   },
