@@ -6,6 +6,9 @@
 # Purpose: deterministic guardrail. The model CANNOT override this — it is code, not a prompt.
 # Blocks destructive git, force-push to protected branches, recursive deletes, and pipe-to-shell.
 #
+# hooks.json matcher must target the shell command string (JS regex), not the tool name.
+# See .cursor/hooks/verify-fork-hooks.sh for regression tests.
+#
 # Uses python3 (ubiquitous) for JSON so there is no jq dependency on the demo machine.
 
 set -euo pipefail

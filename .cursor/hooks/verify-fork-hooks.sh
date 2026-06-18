@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Local verification for lifecycle hooks (run: ./scripts/verify-fork-hooks.sh)
+# Local verification for lifecycle hooks (run: ./.cursor/hooks/verify-fork-hooks.sh)
 set -euo pipefail
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+HOOKS_JSON="$ROOT/.cursor/hooks.json"
 DANGEROUS="$ROOT/.cursor/hooks/block-dangerous.sh"
 PR_HOOK="$ROOT/.cursor/hooks/block-upstream-pr.sh"
 MCP_HOOK="$ROOT/.cursor/hooks/block-upstream-mcp.sh"
@@ -31,11 +32,79 @@ assert_perm() {
   fi
 }
 
+echo "hooks.json"
+python3 - "$HOOKS_JSON" <<'PY'
+import json, re, sys
+
+path = sys.argv[1]
+with open(path, encoding="utf-8") as f:
+    cfg = json.load(f)
+
+assert cfg.get("version") == 1, "hooks.json version must be 1"
+
+shell_hooks = cfg.get("hooks", {}).get("beforeShellExecution", [])
+by_cmd = {h["command"]: h for h in shell_hooks if "command" in h}
+
+dangerous = by_cmd.get(".cursor/hooks/block-dangerous.sh")
+assert dangerous, "block-dangerous.sh must be registered in beforeShellExecution"
+matcher = dangerous.get("matcher", "")
+assert matcher and matcher != "Shell", (
+    'block-dangerous.sh matcher must be a command-string regex, not "Shell"'
+)
+assert dangerous.get("failClosed") is True, "block-dangerous.sh must set failClosed: true"
+
+upstream = by_cmd.get(".cursor/hooks/block-upstream-pr.sh")
+assert upstream, "block-upstream-pr.sh must be registered in beforeShellExecution"
+assert upstream.get("failClosed") is True, "block-upstream-pr.sh must set failClosed: true"
+
+# Matchers use JS-style regex against the full shell command string.
+dangerous_re = re.compile(matcher)
+upstream_re = re.compile(upstream.get("matcher", ""))
+
+cases = [
+    (dangerous_re, "git push origin master", True, "block-dangerous matches master push"),
+    (dangerous_re, "yarn test", False, "block-dangerous ignores unrelated commands"),
+    (upstream_re, "git push origin feat/x", True, "block-upstream-pr matches git push"),
+    (upstream_re, "gh pr create --title x", True, "block-upstream-pr matches gh pr create"),
+]
+
+for regex, cmd, should_match, label in cases:
+    matched = regex.search(cmd) is not None
+    assert matched == should_match, f"{label}: expected match={should_match} for {cmd!r}"
+
+mcp_hooks = cfg.get("hooks", {}).get("beforeMCPExecution", [])
+mcp = next(
+    (h for h in mcp_hooks if h.get("command") == ".cursor/hooks/block-upstream-mcp.sh"),
+    None,
+)
+assert mcp, "block-upstream-mcp.sh must be registered in beforeMCPExecution"
+assert mcp.get("failClosed") is True, "block-upstream-mcp.sh must set failClosed: true"
+
+for rel in (
+    ".cursor/hooks/block-dangerous.sh",
+    ".cursor/hooks/block-upstream-pr.sh",
+    ".cursor/hooks/block-upstream-mcp.sh",
+    ".cursor/hooks/redact-secrets.sh",
+    ".cursor/hooks/format-and-audit.sh",
+):
+    assert rel in {
+        h.get("command")
+        for event in cfg.get("hooks", {}).values()
+        for h in event
+        if isinstance(h, dict)
+    }, f"{rel} must be referenced in hooks.json"
+
+print("OK  hooks.json structure, matchers, and failClosed flags")
+PY
+
 echo "block-dangerous.sh"
 assert_perm "$DANGEROUS" '{"command":"git push --force origin main"}' deny "force push flag"
 assert_perm "$DANGEROUS" '{"command":"git push origin +main"}' deny "git +refspec force push"
 assert_perm "$DANGEROUS" '{"command":"git push origin +main:main"}' deny "git +refspec mapping"
 assert_perm "$DANGEROUS" '{"command":"git push origin feature-branch"}' allow "normal push"
+assert_perm "$DANGEROUS" '{"command":"git push origin master"}' deny "direct push to master"
+assert_perm "$DANGEROUS" '{"command":"git push origin main"}' deny "direct push to main"
+assert_perm "$DANGEROUS" '{"command":"cd /repo && git checkout master && git merge feat/x && git push origin master"}' deny "chained push to master"
 
 echo "block-upstream-pr.sh"
 assert_perm "$PR_HOOK" '{"command":"gh pr create --repo excalidraw/excalidraw --title x"}' deny "explicit upstream repo"
