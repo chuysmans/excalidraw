@@ -6,6 +6,7 @@ export const hasBackground = (type: ElementOrToolType) =>
   type === "embeddable" ||
   type === "ellipse" ||
   type === "diamond" ||
+  type === "star" ||
   type === "line" ||
   type === "freedraw";
 
@@ -13,6 +14,7 @@ export const hasStrokeColor = (type: ElementOrToolType) =>
   type === "rectangle" ||
   type === "ellipse" ||
   type === "diamond" ||
+  type === "star" ||
   type === "freedraw" ||
   type === "arrow" ||
   type === "line" ||
@@ -25,6 +27,7 @@ export const hasStrokeWidth = (type: ElementOrToolType) =>
   type === "embeddable" ||
   type === "ellipse" ||
   type === "diamond" ||
+  type === "star" ||
   type === "freedraw" ||
   type === "arrow" ||
   type === "line";
@@ -35,6 +38,7 @@ export const hasStrokeStyle = (type: ElementOrToolType) =>
   type === "embeddable" ||
   type === "ellipse" ||
   type === "diamond" ||
+  type === "star" ||
   type === "arrow" ||
   type === "line";
 
@@ -44,6 +48,7 @@ export const canChangeRoundness = (type: ElementOrToolType) =>
   type === "embeddable" ||
   type === "line" ||
   type === "diamond" ||
+  type === "star" ||
   type === "image";
 
 export const toolIsArrow = (type: ElementOrToolType) => type === "arrow";

@@ -55,11 +55,12 @@ import {
   isTextElement,
 } from "./typeChecks";
 
-import { aabbForElement, elementCenterPoint } from "./bounds";
+import { aabbForElement, elementCenterPoint, getStarPoints } from "./bounds";
 import { updateElbowArrowPoints } from "./elbowArrow";
 import {
   deconstructDiamondElement,
   deconstructRectanguloidElement,
+  deconstructStarElement,
   projectFixedPointOntoDiagonal,
 } from "./utils";
 
@@ -2524,9 +2525,13 @@ type Side =
   | "bottom-left"
   | "left"
   | "top-left";
-type ShapeType = "rectangle" | "ellipse" | "diamond";
+type ShapeType = "rectangle" | "ellipse" | "diamond" | "star";
 const getShapeType = (element: ExcalidrawBindableElement): ShapeType => {
-  if (element.type === "ellipse" || element.type === "diamond") {
+  if (
+    element.type === "ellipse" ||
+    element.type === "diamond" ||
+    element.type === "star"
+  ) {
     return element.type;
   }
   return "rectangle";
@@ -2564,6 +2569,20 @@ const SHAPE_CONFIGS: Record<ShapeType, SectorConfig[]> = {
     { centerAngle: 225, sectorWidth: 75, side: "top-left" },
     { centerAngle: 270, sectorWidth: 15, side: "top" },
     { centerAngle: 315, sectorWidth: 75, side: "top-right" },
+  ],
+
+  // star: narrow outer points, wider edges between
+  star: [
+    { centerAngle: 0, sectorWidth: 15, side: "right" },
+    { centerAngle: 36, sectorWidth: 15, side: "bottom-right" },
+    { centerAngle: 72, sectorWidth: 15, side: "bottom-right" },
+    { centerAngle: 108, sectorWidth: 15, side: "bottom-left" },
+    { centerAngle: 144, sectorWidth: 15, side: "bottom-left" },
+    { centerAngle: 180, sectorWidth: 15, side: "left" },
+    { centerAngle: 216, sectorWidth: 15, side: "top-left" },
+    { centerAngle: 252, sectorWidth: 15, side: "top-left" },
+    { centerAngle: 288, sectorWidth: 15, side: "top-right" },
+    { centerAngle: 324, sectorWidth: 15, side: "top-right" },
   ],
 
   // ellipse: 15° cardinal points, 75° diagonals
@@ -2755,6 +2774,71 @@ export const getBindingSideMidPoint = (
       }
       case "top-left": {
         const midPoint = getMidPoint(topLeft[0], topLeft[1]);
+        x = midPoint[0] - OFFSET * 0.707;
+        y = midPoint[1] - OFFSET * 0.707;
+        break;
+      }
+      default: {
+        return null;
+      }
+    }
+
+    return pointRotateRads(pointFrom(x, y), center, bindableElement.angle);
+  }
+
+  if (bindableElement.type === "star") {
+    const [sides] = deconstructStarElement(bindableElement);
+    const outerPoints = getStarPoints(bindableElement).filter(
+      (_, index) => index % 2 === 0,
+    );
+    let x: number;
+    let y: number;
+
+    switch (side) {
+      case "top": {
+        const point = outerPoints[0];
+        x = bindableElement.x + point[0];
+        y = bindableElement.y + point[1] - OFFSET;
+        break;
+      }
+      case "right": {
+        const midPoint = getMidPoint(sides[1][0], sides[1][1]);
+        x = midPoint[0] + OFFSET;
+        y = midPoint[1];
+        break;
+      }
+      case "bottom": {
+        const point = outerPoints[2];
+        x = bindableElement.x + point[0];
+        y = bindableElement.y + point[1] + OFFSET;
+        break;
+      }
+      case "left": {
+        const midPoint = getMidPoint(sides[7][0], sides[7][1]);
+        x = midPoint[0] - OFFSET;
+        y = midPoint[1];
+        break;
+      }
+      case "top-right": {
+        const midPoint = getMidPoint(sides[1][0], sides[1][1]);
+        x = midPoint[0] + OFFSET * 0.707;
+        y = midPoint[1] - OFFSET * 0.707;
+        break;
+      }
+      case "bottom-right": {
+        const midPoint = getMidPoint(sides[3][0], sides[3][1]);
+        x = midPoint[0] + OFFSET * 0.707;
+        y = midPoint[1] + OFFSET * 0.707;
+        break;
+      }
+      case "bottom-left": {
+        const midPoint = getMidPoint(sides[5][0], sides[5][1]);
+        x = midPoint[0] - OFFSET * 0.707;
+        y = midPoint[1] + OFFSET * 0.707;
+        break;
+      }
+      case "top-left": {
+        const midPoint = getMidPoint(sides[9][0], sides[9][1]);
         x = midPoint[0] - OFFSET * 0.707;
         y = midPoint[1] - OFFSET * 0.707;
         break;

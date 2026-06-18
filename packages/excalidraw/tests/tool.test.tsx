@@ -92,3 +92,30 @@ describe("getToolbarTools()", () => {
     expect(toolValues.filter((value) => value === "selection")).toHaveLength(0);
   });
 });
+
+describe("star tool", () => {
+  const h = window.h;
+
+  it("is included in getToolbarTools()", () => {
+    const toolValues = getToolbarTools({
+      state: {
+        preferredSelectionTool: {
+          type: "selection",
+        },
+      },
+    } as AppClassProperties).map((tool) => tool.value);
+
+    expect(toolValues).toContain("star");
+  });
+
+  it("is present and selectable in the toolbar", async () => {
+    const { getByToolName } = await render(<Excalidraw />);
+    const tool = getByToolName("star");
+
+    expect(tool).toBeTruthy();
+    act(() => {
+      tool.click();
+    });
+    expect(h.state.activeTool.type).toBe("star");
+  });
+});
