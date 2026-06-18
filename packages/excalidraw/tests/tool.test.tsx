@@ -118,4 +118,17 @@ describe("star tool", () => {
     });
     expect(h.state.activeTool.type).toBe("star");
   });
+
+  it("renders a NEW badge on the toolbar button", async () => {
+    const { getByToolName } = await render(<Excalidraw />);
+
+    const starContainer = getByToolName("star").closest(".ToolIcon");
+    const starBadge = starContainer?.querySelector(".ToolIcon__badge");
+    expect(starBadge).toBeTruthy();
+    expect(starBadge?.textContent).toBe("NEW");
+    expect(starBadge?.getAttribute("aria-hidden")).toBe("true");
+
+    const rectangleContainer = getByToolName("rectangle").closest(".ToolIcon");
+    expect(rectangleContainer?.querySelector(".ToolIcon__badge")).toBeFalsy();
+  });
 });

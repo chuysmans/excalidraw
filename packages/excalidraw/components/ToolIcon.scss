@@ -159,6 +159,24 @@
     user-select: none;
   }
 
+  .ToolIcon__badge {
+    position: absolute;
+    top: 1px;
+    inset-inline-end: 1px;
+    padding: 0 3px;
+    border-radius: 6px;
+    font-size: 0.5rem;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #fff;
+    background-color: var(--color-primary, #6965db);
+    font-family: var(--ui-font);
+    pointer-events: none;
+    user-select: none;
+  }
+
   .unlocked-icon {
     :root[dir="ltr"] & {
       left: 2px;
