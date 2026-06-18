@@ -5,6 +5,7 @@ import { resolvablePromise } from "@excalidraw/common";
 import { Excalidraw } from "../index";
 
 import { getToolbarTools } from "../components/shapes";
+import { t } from "../i18n";
 
 import { Pointer } from "./helpers/ui";
 import { act, render } from "./test-utils";
@@ -117,5 +118,24 @@ describe("star tool", () => {
       tool.click();
     });
     expect(h.state.activeTool.type).toBe("star");
+  });
+
+  it("renders a decorative NEW badge on the star toolbar button", async () => {
+    const { container } = await render(<Excalidraw />);
+
+    const starButton = container.querySelector('[data-testid="toolbar-star"]');
+    expect(starButton).toBeTruthy();
+
+    const starLabel = starButton!.closest("label.ToolIcon");
+    const badge = starLabel?.querySelector(".ToolIcon__badge");
+
+    expect(badge).toBeTruthy();
+    expect(badge?.textContent).toBe(t("toolBar.newBadge"));
+    expect(badge?.getAttribute("aria-hidden")).toBe("true");
+
+    const rectangleLabel = container
+      .querySelector('[data-testid="toolbar-rectangle"]')
+      ?.closest("label.ToolIcon");
+    expect(rectangleLabel?.querySelector(".ToolIcon__badge")).toBeNull();
   });
 });
