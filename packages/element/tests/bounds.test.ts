@@ -8,6 +8,7 @@ import {
   elementsOverlappingBBox,
   getElementAbsoluteCoords,
   getElementBounds,
+  getStarPoints,
 } from "../src/bounds";
 
 import type { ExcalidrawElement, ExcalidrawLinearElement } from "../src/types";
@@ -205,5 +206,20 @@ describe("elementsOverlappingBBox()", () => {
         ],
       }),
     ).toEqual([rectInside]);
+  });
+});
+
+describe("getStarPoints", () => {
+  it("returns 10 points within the element bounding box", () => {
+    const points = getStarPoints({ width: 100, height: 80 });
+
+    expect(points).toHaveLength(10);
+    points.forEach(([x, y]) => {
+      expect(x).toBeGreaterThanOrEqual(0);
+      expect(x).toBeLessThanOrEqual(100);
+      expect(y).toBeGreaterThanOrEqual(0);
+      expect(y).toBeLessThanOrEqual(80);
+    });
+    expect(points[0][1]).toBeLessThan(points[0][0]);
   });
 });
